@@ -1,0 +1,273 @@
+---
+title: "Midterm"
+author: "Jed DeCamp"
+date: "April 3, 2017"
+output: html_document
+---
+
+## 1a) Suppose 
+  $F_o > S_oe^{rT}$
+  
+There is an arbitrage opportunity in this case. The forward contract is overvalued relatvie to the underlying. To engage in arbitrage, one would go short the forward contract and long the underlying, in the following way;
+At time period 0, buy a tailed position in the underlying -$S_oe^{-T}$, and borrow $S_oe^{-T}$, and sell the forward (0). This nets out to 0 at t=0. 
+
+At time T (expiration) the underlying is now = +$S_T$. The loan must be repayed -$S_oe^{rT}$. The forward is = $F_{0,T} - S_T$. 
+The total is = $F_{0,T} - S_oe{rT}$.
+Thus, the value of the forward contract is pushed down, and the value of the underlying is pushed up, until equilibrium is reached.
+
+## 1b) Suppose
+  $F_o < S_oe^{rT}$
+  
+To engage in arbitrage in this situation, one would take all the exact opposite positions from the previous problem. The end result is that the forward is underpriced relative to the underlying, thus one would go long the forward and short the underlying, until equilibrium is reached.
+
+## 1c) Dividends
+
+The pricing equation for non-paying dividend forwards is: $F_{0,T} = S_oe^{rT}$. By adding dividends in discrete time, the equation is: 
+$F_{0,T} = S_oe^{rT} - \sum_{i=1}^n$ $e^{r(T-t_i)}$ $D\_t_i$
+
+For continuous time the equation is:
+$F_{0,T} = S_oe^{(r-\delta)T}$
+
+The idea behind these equations is that because the forward price is essentially the future value of a prepaid forward, the dividend must be taken into account. A forward on a security with a dividend payment will be less, ceterus peribus, than one without. The holder of the underlying is being payed the dividend throughout the life of the contract.
+
+## 1d) Storage Costs
+
+To price a commodity forward contract, we think of it as Culp and William explained it, that "buying a forward oil purchase contract... is economically equivilent to buying and storing oil (Culp, 2003; William, 1986)" The following equation follows:
+$F(t,T) = S(t)[1+b(t,T)]$ 
+
+where $b(t,T) = r(t,T)+w(t,T)-d(t,T)$
+
+$r(t,T)$ = Interest rate prevailing from t to T
+
+$w(t,T)$ = Cost of physical storage of the commodity from t to T
+
+$d(t,T)$ = Benefit of holding the commodity from t to T
+
+The benefits of holding the commodity can be viewed in the same way that a dividend can be viewed on the forward contract of a stock.
+
+## 1e)
+
+To assume that $F_T$ = $S_T$ is a similar idea of say the dividend discount model, or the FCFF model, where the validity of the model is largely dependent upon the correct prediction of the future cash flows. The price of a futures contract at time(t) is essentially a discounted future price. Intuitively, $F_T$ will always = $S_T$, however, this has not always proven to be true. 
+
+If $F_T$ was not equal to $S_T$ there could be an arbitrage opportunity. If $F_T$ > $S_T$, one would simply buy the underlying and sell the futures contract until prices coverged. If $F_T$ < $S_T$, they would do the opoposite.
+
+## 1f) Prepaid forward contracts
+
+In "Derivatives Markets" McDonald explains that "The only difference between the prepaid forward and the forward is the timing of the payment for the stock. Thus, the forward price is just the future value of the prepaid forward".
+
+We begin with the equation; $PF_{0,T} = E_o(S_T)e^{-\alpha T}$
+
+where $PF_{0,T}$ is the price of the prepaid forward at time 0,
+
+$\alpha$ is the expected return on the stock using some method,
+
+$E_o(S_T)$ is the expected value of the stock at time T,
+
+and $e^{-\alpha T}$ is the discount factor
+
+To compute the expected stock price we have:
+
+$E_o(S_T) = S_oe^{\alpha T}$
+
+Plugging this into the previous equation for the prepaid forward, we get:
+
+$PF_{0,T} = E_o(S_T)e^{-\alpha T} = S_oe^{\alpha T}e^{-\alpha T} = S_o$
+
+thus, for a non-dividend paying stock, the prepaid forward price is the stock price.
+
+Prepaid forward contracts are engaged in all the time. Anytime a product is purchased, but not delivered at the time of purchase, this can be viewed as a prepaid forward. Online purchase are an example of this, when payment is made at t=0, but the product does not arrive until 3 weeks later.
+
+## 2a) Unit roots!
+
+### Import dairy data...
+
+### calculate log-prices, and log-differenced prices:
+
+```{R}
+ln.DL = log(dairy$DL.Nearest.Settlement)
+ln.BJ = log(dairy$BJ.Nearest.Settlement)
+ln.DL.diff <- diff(ln.DL)
+ln.BJ.diff <- diff(ln.BJ)
+DL.diff <- diff(dairy$DL.Nearest.Settlement)
+BJ.diff <- diff(dairy$BJ.Nearest.Settlement)
+```
+
+### testing for unit roots in level prices:
+
+```{R}
+library(urca)
+
+adf.DLprice <- ur.df(y=dairy$DL.Nearest.Settlement, type = "drift", selectlags = "BIC")
+summary(adf.DLprice)
+
+adf.BJprice <- ur.df(y=dairy$BJ.Nearest.Settlement, type = "drift", selectlags = "BIC")
+summary(adf.BJprice)
+```
+
+
+### testing for unit roots in first price differences:
+
+```{R}
+library(urca)
+
+adf.DLpricediff <- ur.df(y=DL.diff, type = "drift", selectlags = "BIC")
+summary(adf.DLpricediff)
+
+adf.BJpricediff <- ur.df(y=BJ.diff, type = "drift", selectlags = "BIC")
+summary(adf.BJpricediff)
+```
+
+
+### testing for unit roots in log prices:
+
+```{R}
+library(urca)
+
+adf.DL <- ur.df(y=ln.DL, type = "drift", selectlags = "BIC")
+summary(adf.DL)
+
+adf.BJ <- ur.df(y=ln.BJ, type = "drift", selectlags = "BIC")
+summary(adf.BJ)
+```
+
+### testing for unit roots in log price differences:
+
+```{R}
+adf.DL.diff <- ur.df(y=ln.DL.diff, type = "drift", selectlags = "BIC")
+summary(adf.DL.diff)
+
+adf.BJ.diff <- ur.df(y=ln.BJ.diff, type = "drift", selectlags = "BIC")
+summary(adf.BJ.diff)
+```
+
+### Results!
+
+We fail to reject the null hypothesis that there is a Unit root in level-prices. The corresponding t-values for DL and BJ were -0.8877 and -1.1789 respectively, which are not significant at the 90% confidence level. From this, we conclude "non-stationarity".
+
+We reject the null hypothesis that there is a Unit root in first price differences. The corresponding t-values for DL and BJ were -10.97 and -11.21 respectively, which are significant and well past the 99% confidence level. From this, we conclude "stationarity" and there is a unit root.
+
+We fail to reject the null hypothesis that there is a Unit root in log-prices. The corresponding t-values for DL and BJ were -0.917 and -1.174 respectively, which are not significant at the 90% confidence level. From this, we conclude "non-stationarity".
+
+We reject the null hypothesis that there is a Unit root in log price differences. The corresponding t-values for DL and BJ were -10.983 and -11.190 respectively, which are significant and well past the 99% confidence level. From this, we conclude "stationarity" and there is a unit root.
+
+Typically, we expect log prices to contain a unit root and thus, be stationary, so our third test (log-prices) we might expect those to be stationary and they were not.
+
+## 2b) Time series plots!
+
+plot(dairy$DL.Nearest.Settlement)
+plot(dairy$BJ.Nearest.Settlement)
+plot(ln.DL)
+plot(ln.BJ)
+plot(ln.DL.diff)
+plot(ln.BJ.diff)
+
+## 2c) Engle-Granger:
+
+### run the first cointegrating regression and get the residuals and plot them:
+
+```{R}
+fit <- lm(ln.DL ~ ln.BJ)
+summary(fit)
+resid <- fit$residuals
+plot(resid, type = "b", lwd = 3, col = "blue", main = "Engle-Granger Step 1 Residuals")
+```
+
+### test the residuals for the presence of a Unit root using the ur.df (Augmented Dickey-Fuller) test as above:
+
+```{R}
+adf.resid <- ur.df(resid, type = "drift", selectlags = "BIC")
+summary(adf.resid)
+```
+
+the cointegrating vector is = x-BY. I had trouble with code, but we would expect them to be cointegrated.
+
+## 2d) Minimum Variance Hedging
+
+```{R}
+
+# plot log-prices
+plot(ln.DL, lwd = 2, type = "b", col = "red", main = "Log Spot & Futures Prices")
+lines(ln.BJ, lwd = 2, type = "l", col = "blue")
+
+# plot the log-differenced prices
+plot(ln.DL.diff, lwd = 2, type = "b", col = "red", main = "Log-Differenced Spot & Futures Prices")
+lines(ln.BJ.diff, lwd = 2, type = "l", col = "blue")
+```
+
+### Calculating the Minimum Variance Hedge
+
+### Forumula:
+$$
+h^{\ast} = \rho \frac{\sigma_{S}}{\sigma_{F}}
+$$
+
+```{R}
+# Sample standard deviation of the log-prices
+vol.DL <- sd(ln.DL)
+vol.BJ <- sd(ln.BJ)
+
+# Correlation coefficient between the two log-prices
+rho <- cor(ln.DL, ln.BJ)
+
+# Calculate the minimum variance hedge ratio
+h.star <- rho * (vol.DL / vol.BJ)
+h.star
+```
+
+### The optimal Hedge ratio is 1.218
+Typically we would expect the minimum variance hedge ratio to be less than the cointegration results.
+
+## 3: See Excel Spreadsheet!
+
+## 4)
+
+The main differences between forward markets and futures markets:
+
+  Futures contracts are standardized, whereas forward contracts are not. Forward contracts are typically negotiated privately on a case by case basis. Futures contracts are traded on an exchange and the strike price and expiry are set by the exchange. A forward contract is traded over-the-counter, but has all of the same essential features of a futures contract (e.g. strike price, expiry). Because futures are standardized and traded on an exchange, there is less counter-party risk than with forwards. An entity called a "clearinghouse" acts as the counterparty for both sides of the trade. The counter-party risk inherent is only with this clearinghouse. The losses and gains are settled at the end of each trading day. With forwards, counter-party risk is subject the the other end of the contract, with no clearinghouse as an intermediary. Gains and losses are not settled daily with forwards, but are realized at the end of the contract. Securities which have corresponding futures contracts, at one point began only as forward contracts. A futures market is developed as the demand for forwards on a particular product increases, and a market maker steps in and creates a market for futures. The traditional example of this is with farmers. In the 1800's, farmers (sellers of wheat) wanted to lock in prices with their buyers. Once these contracts became popular, they began to be traded on an exchange. The development of futures contracts and exchanges have solved a number of problems in financial markets. The most obvious is it mitigates price risk to both buyers and sellers of the underlying commodity. The farmer can sleep at night knowing that in 6 months from now, he will receive an agreed upon price for his wheat, regardless of what the spot price of wheat does. The buyer can know that she will pay a fixed price in 6 months time. It has also helped those who aren't interested in the physical delivery of the commodity. For instance, investors (or speculators) can use futures contracts to offset certain risks in existing positions. An investor holding XYZ stock may want to offset a portion of his risk by buying or selling futures. Another benefit of futures is for dealers, or market makers. A dealer for ABC stock can buy and sell future contracts to offset the risk of price movement. This allows them to lower their bid-ask spreads. In turn, this provides greater liquidity to investors. Lower liquidity means less risk, which translates to a liquidity premium on the stock. ABC company benefits from this as well.
+  
+## 5a)
+
+  In his analysis, the author begins by looking at time series properties of the three futures. He finds that they are integrated of order one. He then uses a multivariate cointegration model and finds that the three price series are cointegrated, which suggests that the hog spread reverts to a long-term equilibrium. Seasonal and time trends were controlled for in the model. In short, he finds that there IS an arbitrage opportunity. If the model is correct, one would engage in arbitrage in the following way:
+  
+  long (short) the hog spread by buying (selling) lean hog futures and selling (buying) corn and soybean meal futures when the spread is below (above) the long-run equilibrium by a certain level, then close the positions by conducting offsetting trades when the spread reverts back to the long-run equilibrium. I think his empirical results are convincing, and the theory seems sound as well. His error correction model seems consistant with with the concepts of equilibrium and how markets "become" efficient.
+  
+  
+## 5b)
+
+  Liu's findings basically suggest that a long run equilibrium exists for prices (in this case, spreads), but that the short run demonstrates temporary disequilibriums. One of the main ideas that I take from the Austrian view of prices, is that people and their preferences determine prices, not models. This idea suggests that market efficiency is a process that is continually updating. Liu's model seems to suggest that there is some "model" predictability to prices, however, his model also provides for a portion of the price that is "out of equilibrium" but consistantly updating and reaching equilibrium in the long run. The way I understand Liu's error correction model, the long run equilibrium represents the neo-classical view, and the SR deviation represents the austrian view.
+  
+## 5c)
+
+  As I state earlier, the trade strategy is as follows: long (short) the hog spread by buying (selling) lean hog futures and selling (buying) corn and soybean meal futures when the spread is below (above) the long-run equilibrium by a certain level, then close the positions by conducting offsetting trades when the spread reverts back to the long-run equilibrium.
+  
+  Liu points this out in his reading, but the first problem with this arbitrage method is the problem of transaction costs. I personally would not engage in this transaction, as my personal transaction costs would far outweigh my gains, especially given the small amount of capital I would be using. The firms that gain abnormal prophits from this strategy would have to have large amounts of capital and relatively small transaction costs.
+  
+## 6a)
+
+  Culp and Miller explain the under synthetic storage, the firm pays the marginal storage cost net of the convenience yield for the marginal physical storer. A firm expecting its own marginal cost of storage to be higher than the marginal cost of storage in the futures price would thus be better off ex ante hedging with futures rather than physical storage. MGRM were essintially hedging 1 to 1. Risk minimizing hedging seeks to hedge based on the volatility of the spot, in relation to the futures, also taking into account how the two are correlated. In most cases, this ends up being less than a 1 to 1 hedge. Culp and Miller reference Working, and explain the following about why MGRM indeed had their hedging strategy correct, given the motvie for the hedging:
+  "MGRM’s derivatives positions protected the firm and its creditors against the principal risk the program faced—that is, the risk that rising spot prices
+would erode the gross profit margins on its fixedprice forward sales. Price protection per se, however, need not be presumed the primary motivation for the
+hedging. The combined delivery/hedging strategy was intended to maximize the expected profits from marketing and storing oil products, a field in which
+MGRM possessed special expertise and superior information, without having to gamble on directional movements in spot prices, an activity in which MGRM had no such comparative advantage."
+
+## 6b)
+
+  I tend to agree with Culp and Miller in terms of MG's hedging strategy. However, Pirong still makes a valid point with his risk minimizing hedge. It all comes down to the motive for heding. Previously, I cited Culp and Miller's explanation for why MG's hedge was appropriate, given their motives. I believe the optimal hedging strategy was a 1 for 1 hedge, as Culp and Miller believe. The problem was not with the hedging strategy. The problem was communication within the company, esspecially with upper management. Had upper management been aware of the strategy and what was going on, they could have been patient for their position to unwind and to make their losses back. Pirong explained the mistake of MG in this way:
+  "MG’s bankers mistook a mere liquidity problem resulting from margin calls on futures positions for a full-blown insolvency crisis, unwisely unwound the firm’s hedge position, and prematurely terminated some of its long-term delivery contracts." This was the problem, not the hedging strategy.
+  
+## 6c)
+
+  Pirong is essentially saying that a bayesian's prior would understate the probability of MG having an information advantage this scenario. Maybe Pirong is saying that viewing this scenario from the perspective of a Bayesian is neccessary in that given the uniqueness of the circumstance, beginning with a prior and updating with new information is the only way to properly view this case.
+
+  
+## 7)
+
+  Both papers look at the interaction between information and prices. Roll's paper dicusses how futures prices and weather are related. From his findings, and other liturature, it appears that futures markets are a better predictor of weather than weather stations. This idea reminded me of the concept we discussed in class about the rancher who could predict the prices of bulls better than statistical models. Tying this into Hayek, prices are the aggregate of ALL knowledge, from ALL market participants. Clearly, in this case, the experts are not techically "the experts." "Non-technical knowledge (I made that term up)" proves to be equally important, and sometimes more important. Coval & Shumway's paper illustrates a similar idea, with slight differences. Their focus is more on the "flow" of knowledge rather than the "source" of knowledge. They show how ambient noise level on exchanges are related to volatility and illiquidity of the securties traded. It appears that there is a positive relationship between noise levels and these factors. One issue with this study that I found, is that while knowing the relationship between these factors is valuable, it is still difficult to determine if this knowledge is correct knowledge. Human emotion is certainly related to noise levels. Human emotion can cause irrational behavior. Thus, when noise levels increase, it could be a valuable signal that the security at hand is riskier than before realized. It also could provide bad information, in that the noise comes from an emotional response based on false information. Either way, it shows the flow of information (good or bad) into price.
+  
+## 8)
+
+  As an overview, Hayek's paper addresses the idea of central planners vs. decentralized planning. Which is more effective, having one entity make decisions based on the knowledge available to him/her, or allowing the aggregate opinion of the market prevail, and allow markets as a whole to make decisions. Nau points out that no-arbitrage is the fundamental principle of economics. He points out that individuals appear to be optimizing their expected utility, when in reality, there are simply adapting to changing market conditions and that they are not using "numerical optimization algorithms", but rather "evolutionarily-shaped decision rules". To relate Quintana's paper to Hayek, I noted his statement that said "if the futures markets were incoherent they would have been an ideal fountain of wealth but only for a short while; afterwards they would have dried out and disappeared". This sounds to me like Quintana is describing the "market process" that both Hayek and now explain in their papers. In addition to this statement, Quintana also said "although the futures markets participants might not be individually coherent, as an entity, they are acting in concert coherently by sharing between all of them two crucial pieces of information: the bid and ask prices". This relates to Hayeks idea that each market participant contributes to the market price by their individual decisions, thus prices reflect the agrigate opinion of all market participants. As far as "Arbitrage Choice Theory", I think the idea is that arbitrage takes both neo-classical framework, and Bayesian thinking. The concept of arbitrage is founded upon economic models which assume an equilibrium in prices. And yet, those who DO NOT believe prices are in equilibrium, and are thus "inefficient" use the very models which are based upon the assumption of "no-arbitrage". I think Quintana is saying something similiar when he said that futures markets would be the ideal fountain of wealth, but only for a short while before they became coherent again.
+
+## 9)
+
+  From this class, I've certainly learned that derivatives can be and are used for purposes other than hedging risk, but it seems that many of the derivatives in existence now, began with that purpose in mind. Dervivatives also convey information as do all prices. Perhaps a market in which futures contracts could emerge in the future is on tuition and fees. The first benefit of this, would be that it could signal to potential students what the anticipated costs will be for the next four years of their life. It would act as an information signal in it's price. Students could also lock in their prices and thus, avoid price movement risk. Clearly, students would be one group that may be interested in buying these futures. But who would sell them? Speculators are one obvious group, but who else. Anyone who faces a loss, if tuition and fees decrease in price. This likely will not happen, so perhpas those who would face a loss if prices decreased are the same group that would face a loss if the demand for education increases, given that if prices drop (or atleast remain low for a given time) the demand for education would increase. This could include industries that higher a lot of employees without a college education (e.g. fast food, oil fields, so forth). This may be a stretch, but it's worth looking into further. 
