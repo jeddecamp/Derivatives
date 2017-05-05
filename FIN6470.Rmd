@@ -1,0 +1,260 @@
+---
+title: "FIN6470"
+author: "Jed DeCamp"
+date: "May 5, 2017"
+output: html_document
+---
+
+Worked with Dan Wouden on problem 13:
+
+13.1
+
+from scipy.stats import norm
+from math import *
+
+def Black_Scholes_Greeks_Call(S, K, r, v, T, d):
+    T_sqrt = sqrt(T)
+    d1 = (log(float(S)/K)+((r-d)+v*v/2.)*T)/(v*T_sqrt)
+    d2 = d1-v*T_sqrt
+    Delta = norm.cdf(d1)
+    Gamma = norm.pdf(d1)/(S*v*T_sqrt)
+    Theta =- (S*v*norm.pdf(d1))/(2*T_sqrt) - r*K*exp( -r*T)*norm.cdf(d2)
+    Vega = S * T_sqrt*norm.pdf(d1)
+    Rho = K*T*exp(-r*T)*norm.cdf(d2)
+    return Delta, Gamma, Theta, Vega, Rho
+
+print (Black_Scholes_Greeks_Call(40, 45, 0.08, 0.3, (91/365), 0))
+
+#Delta: partial wrt S
+#Gamma: second partial wrt S
+#Theta: partial wrt T
+#Vega: partial wrt v
+#Rho: partial wrt r
+
+(0.28154755570497469, 0.056330846889247124, -4.8790910115462944, 6.7411818962255179, 2.5656703161769059)
+
+delta = 0.28154755
+num_shares=100
+
+investmentrequirement=delta*num_shares
+investmentrequirement
+
+28.154754999999998
+
+thedata = probo.MarketData(rate=.08, spot=40.0, volatility=.3, dividend=0)
+
+thecall = probo.VanillaPayoff(payoff=probo.call_payoff, strike=45, expiry=(91/365))
+
+bsengine = probo.BlackScholesPricingEngine("call", probo.BlackScholesPricer)
+option3 =  probo.OptionFacade(thecall, bsengine, thedata)
+price3 = option3.price()
+print("The call price via Black-Scholes is: {0:.3f}".format(price3))
+
+The call price via Black-Scholes is: 0.971
+
+thedata = probo.MarketData(rate=.08, spot=39, volatility=.3, dividend=0)
+
+thecall = probo.VanillaPayoff(payoff=probo.call_payoff, strike=45, expiry=(90/365))
+
+bsengine = probo.BlackScholesPricingEngine("call", probo.BlackScholesPricer)
+option3 =  probo.OptionFacade(thecall, bsengine, thedata)
+price3 = option3.price()
+print("The call price via Black-Scholes is: {0:.3f}".format(price3))
+
+The call price via Black-Scholes is: 0.705
+Loss on 28.15475 shares --- $28.15(39-40)= -28.15$
+Gain on Written Call Value --- ($0.971-0.705)*100 = +26.56$
+Interest on Call Value --- $(28.15*40)-97.01=1028.99$ ---> $[e^{(0.08/365)}-1]*1028.99=-0.2256$
+Loss --- $-28.15+26.56-.2256=-1.8156$
+
+thedata = probo.MarketData(rate=.08, spot=40.5, volatility=.3, dividend=0)
+
+thecall = probo.VanillaPayoff(payoff=probo.call_payoff, strike=45, expiry=(90/365))
+
+bsengine = probo.BlackScholesPricingEngine("call", probo.BlackScholesPricer)
+option3 =  probo.OptionFacade(thecall, bsengine, thedata)
+price3 = option3.price()
+print("The call price via Black-Scholes is: {0:.3f}".format(price3))
+
+The call price via Black-Scholes is: 1.105
+Gain on 28.15475 shares --- $28.15(40.5-40)= +14.08$
+Gain on Written Call Value --- $(0.971-1.105)*100 = -13.4$
+Interest on Call Value --- $(28.15*40)-97.01=1028.99$ ---> $[e^{(0.08/365)}-1]*1028.99=-0.2256$
+Profit --- $14.08-13.40-0.2256= +0.4544$
+
+13.2
+
+from scipy.stats import norm
+from math import *
+
+def Black_Scholes_Greeks_Call(S, K, r, v, T, d):
+    T_sqrt = sqrt(T)
+    d1 = (log(float(S)/K)+((r-d)+v*v/2.)*T)/(v*T_sqrt)
+    d2 = d1-v*T_sqrt
+    Delta = norm.cdf(d1)
+    Gamma = norm.pdf(d1)/(S*v*T_sqrt)
+    Theta =- (S*v*norm.pdf(d1))/(2*T_sqrt) - r*K*exp( -r*T)*norm.cdf(d2)
+    Vega = S * T_sqrt*norm.pdf(d1)
+    Rho = K*T*exp(-r*T)*norm.cdf(d2)
+    return Delta, Gamma, Theta, Vega, Rho
+
+print (Black_Scholes_Greeks_Call(40, 40, 0.08, 0.3, (91/365), 0))
+
+#Delta: partial wrt S
+#Gamma: second partial wrt S
+#Theta: partial wrt T
+#Vega: partial wrt v
+#Rho: partial wrt r
+
+(0.58240415786248245, 0.065156175400058219, -6.3325058042905109, 7.7973198396562813, 5.1148892797690078)
+
+delta = 0.5824041578
+num_shares=100
+
+investmentrequirement=delta*num_shares
+investmentrequirement
+
+58.24041578
+
+thedata = probo.MarketData(rate=.08, spot=40.0, volatility=.3, dividend=0)
+
+thecall = probo.VanillaPayoff(payoff=probo.call_payoff, strike=40, expiry=(91/365))
+
+bsengine = probo.BlackScholesPricingEngine("call", probo.BlackScholesPricer)
+option3 =  probo.OptionFacade(thecall, bsengine, thedata)
+price3 = option3.price()
+print("The call price via Black-Scholes is: {0:.3f}".format(price3))
+
+The call price via Black-Scholes is: 2.780
+
+thedata = probo.MarketData(rate=.08, spot=39.0, volatility=.3, dividend=0)
+
+thecall = probo.VanillaPayoff(payoff=probo.call_payoff, strike=40.0, expiry=(90/365))
+
+bsengine = probo.BlackScholesPricingEngine("call", probo.BlackScholesPricer)
+option3 =  probo.OptionFacade(thecall, bsengine, thedata)
+price3 = option3.price()
+print("The call price via Black-Scholes is: {0:.3f}".format(price3))
+
+The call price via Black-Scholes is: 2.214
+Loss on 58.24041578 shares --- $58.24(39-40)= -58.24$
+Gain/Loss on Written Call Value --- $(2.780-2.214)*100 = +56.60$
+Interest on Call Value --- $(58.24*40)-278.0=2051.60$ ---> $[e^{(0.08/365)}-1]*2051.60=-0.4497$
+Loss --- $-58.24+53.60-0.4497=-5.0897$
+
+thedata = probo.MarketData(rate=.08, spot=40.5, volatility=.3, dividend=0)
+
+thecall = probo.VanillaPayoff(payoff=probo.call_payoff, strike=40.0, expiry=(90/365))
+
+bsengine = probo.BlackScholesPricingEngine("call", probo.BlackScholesPricer)
+option3 =  probo.OptionFacade(thecall, bsengine, thedata)
+price3 = option3.price()
+print("The call price via Black-Scholes is: {0:.3f}".format(price3))
+
+The call price via Black-Scholes is: 3.062
+Gain on 58.24041578 shares --- $58.24(40.5-40)= +29.12$
+Gain/Loss on Written Call Value --- $(2.780-3.062)*100 = -28.20$
+Interest on Call Value --- $(58.24*40)-278.0=2051.60$ ---> $[e^{(0.08/365)}-1]*2051.60=-0.4497$
+Profit --- $+29.12-28.20-0.4497= +0.4703$
+
+13.9
+
+import numpy as np
+import matplotlib.pyplot as plt
+array1 = np.empty((2,21))
+for spot_price in range(30,51):
+    thedata = probo.MarketData(rate=.08, spot=spot_price, volatility=.3, dividend=0)
+
+    thecall = probo.VanillaPayoff(payoff=probo.call_payoff, strike=40, expiry=(90/365))
+
+    bsengine = probo.BlackScholesPricingEngine("call", probo.BlackScholesPricer)
+    option3 =  probo.OptionFacade(thecall, bsengine, thedata)
+    price3 = option3.price()
+    array1[0, spot_price - 30] = price3
+    array1[1, spot_price-30] = spot_price
+    print("The call price for spot_price via Black-Scholes is: {0:.3f}".format(price3))
+print(array1)
+plt.figure(1)
+plt.plot(array1[1], array1[0],'r.-')
+plt.show()
+
+The call price for spot_price via Black-Scholes is: 0.073
+The call price for spot_price via Black-Scholes is: 0.127
+The call price for spot_price via Black-Scholes is: 0.208
+The call price for spot_price via Black-Scholes is: 0.326
+The call price for spot_price via Black-Scholes is: 0.489
+The call price for spot_price via Black-Scholes is: 0.706
+The call price for spot_price via Black-Scholes is: 0.982
+The call price for spot_price via Black-Scholes is: 1.324
+The call price for spot_price via Black-Scholes is: 1.734
+The call price for spot_price via Black-Scholes is: 2.214
+The call price for spot_price via Black-Scholes is: 2.763
+The call price for spot_price via Black-Scholes is: 3.377
+The call price for spot_price via Black-Scholes is: 4.052
+The call price for spot_price via Black-Scholes is: 4.782
+The call price for spot_price via Black-Scholes is: 5.561
+The call price for spot_price via Black-Scholes is: 6.383
+The call price for spot_price via Black-Scholes is: 7.240
+The call price for spot_price via Black-Scholes is: 8.129
+The call price for spot_price via Black-Scholes is: 9.042
+The call price for spot_price via Black-Scholes is: 9.975
+The call price for spot_price via Black-Scholes is: 10.924
+[[  0.07302284   0.12668387   0.20828563   0.32627467   0.48929674
+    0.70550778   0.98190192   1.32375662   1.73426808   2.21441078
+    2.76301531   3.37702657   4.05188533   4.78197048   5.56104474
+    6.38265959   7.24049058   8.12858987   9.04155515   9.9746233
+   10.92370213]
+ [ 30.          31.          32.          33.          34.          35.
+   36.          37.          38.          39.          40.          41.
+   42.          43.          44.          45.          46.          47.
+   48.          49.          50.        ]]
+
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+array1 = np.empty((4,21))
+def BlackScholesDelta(spot=spot_price, t=(90/365), strike=40, expiry=(91/365), volatility=0.3, rate=0.08, dividend=0):
+    tau = expiry - t
+    d1 = (np.log(spot/strike) + (rate - dividend + 0.5 * volatility * volatility) * tau) / (volatility * np.sqrt(tau))
+    delta = np.exp(-dividend * tau) * norm.cdf(d1) 
+    return delta
+
+
+for spot_price in range(30,51):
+    delta = BlackScholesDelta(spot_price)
+    thedata = probo.MarketData(rate=.08, spot=spot_price, volatility=.3, dividend=0)
+
+    thecall = probo.VanillaPayoff(payoff=probo.call_payoff, strike=40, expiry=(90/365))
+
+    bsengine = probo.BlackScholesPricingEngine("call", probo.BlackScholesPricer)
+    option3 =  probo.OptionFacade(thecall, bsengine, thedata)
+    price3 = option3.price()
+    
+    array1[0, spot_price - 30] = spot_price
+    array1[1, (spot_price - 30)] = delta
+    array1[2, (spot_price-30)] = 2.780-(40-spot_price)*.582404
+    array1[3, spot_price -30] = price3
+    
+np.set_printoptions(precision=3, suppress=False)
+print(array1)
+plt.figure(1)
+plt.plot(array1[0], array1[2],'r.-')
+plt.show()
+
+ 3.000e+01   3.100e+01   3.200e+01   3.300e+01   3.400e+01   3.500e+01
+    3.600e+01   3.700e+01   3.800e+01   3.900e+01   4.000e+01   4.100e+01
+    4.200e+01   4.300e+01   4.400e+01   4.500e+01   4.600e+01   4.700e+01
+    4.800e+01   4.900e+01   5.000e+01]
+ [  4.236e-75   2.124e-59   5.382e-46   1.087e-34   2.634e-25   1.108e-17
+    1.132e-11   3.846e-07   5.878e-04   5.586e-02   5.087e-01   9.446e-01
+    9.991e-01   1.000e+00   1.000e+00   1.000e+00   1.000e+00   1.000e+00
+    1.000e+00   1.000e+00   1.000e+00]
+ [ -3.044e+00  -2.462e+00  -1.879e+00  -1.297e+00  -7.144e-01  -1.320e-01
+    4.504e-01   1.033e+00   1.615e+00   2.198e+00   2.780e+00   3.362e+00
+    3.945e+00   4.527e+00   5.110e+00   5.692e+00   6.274e+00   6.857e+00
+    7.439e+00   8.022e+00   8.604e+00]
+ [  7.302e-02   1.267e-01   2.083e-01   3.263e-01   4.893e-01   7.055e-01
+    9.819e-01   1.324e+00   1.734e+00   2.214e+00   2.763e+00   3.377e+00
+    4.052e+00   4.782e+00   5.561e+00   6.383e+00   7.240e+00   8.129e+00
+    9.042e+00   9.975e+00   1.092e+01]]
